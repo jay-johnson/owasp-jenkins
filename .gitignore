@@ -20,6 +20,7 @@ nohup.out
 venv
 py2venv
 py3venv
+owasp_jenkins.egg-info
 
 docker/data/tools
 docker/data/ansible
