@@ -1,0 +1,11 @@
+---
+- name: "Checking if NVD Dependency Checker is installed"
+  connection: local
+  stat:
+    path: "{{nvd_depcheck_dir}}"
+  register: nvd_depcheck_installed
+
+- name: "Should clone={{nvd_depcheck_installed.stat.exists}} NVD Dependency Checker from repo={{nvd_depcheck_repo}}"
+  connection: local
+  shell: "ssh-agent bash -c 'ssh-add {{nvd_depcheck_key}}; git clone {{nvd_depcheck_repo}} {{nvd_depcheck_dir}}'"
+  when: not nvd_depcheck_installed.stat.exists

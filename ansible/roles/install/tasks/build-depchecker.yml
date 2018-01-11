@@ -1,0 +1,22 @@
+---
+- name: "Building NVD Dependency Checker repo={{nvd_depcheck_repo}} in dir={{nvd_depcheck_dir}}"
+  connection: local
+  shell: "cd {{nvd_depcheck_dir}} && unset JAVA_TOOL_OPTIONS && mvn {{nvd_depcheck_m2_settings}} install {{maven_proxy_params}} -DskipTests clean package"
+
+- name: "Checking NVD Dependency Checker is on the PATH"
+  stat:
+    path: "{{nvd_depcheck}}"
+  register: nvd_depchecker_installed
+
+- name: "Verifying NVD Dependency Checker Exists"
+  fail:
+    msg: "Failed to find NVD Dependency Checker script={{nvd_depcheck}} - Please try manually building it with the command: 'cd {{nvd_depcheck_dir}} && unset JAVA_TOOL_OPTIONS && mvn {{nvd_depcheck_m2_settings}} {{maven_proxy_params}} -DskipTests clean package'"
+  when: not nvd_depchecker_installed.stat.exists
+
+- name: "Setting NVD Dependency Checker={{nvd_depcheck}} Permissions"
+  connection: local
+  file:
+    path: "{{nvd_depcheck}}"
+    owner: jenkins
+    group: jenkins
+    mode: u=rwx,g=rwx,o=rwx

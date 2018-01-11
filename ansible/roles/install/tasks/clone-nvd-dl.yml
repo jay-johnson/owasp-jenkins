@@ -1,0 +1,11 @@
+---
+- name: "Checking if NIST Downloader is installed"
+  connection: local
+  stat:
+    path: "{{nist_dl_dir}}"
+  register: nist_dl_installed
+
+- name: "Should clone={{nist_dl_installed.stat.exists}} NIST Downloader from repo={{nist_dl_repo}}"
+  connection: local
+  shell: "ssh-agent bash -c 'ssh-add {{nist_dl_key}}; git clone {{nist_dl_repo}} {{nist_dl_dir}}'"
+  when: not nist_dl_installed.stat.exists

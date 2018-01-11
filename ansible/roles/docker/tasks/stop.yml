@@ -1,0 +1,28 @@
+---
+- name: "Starting {{docker_host}} containers compose_file={{docker_compose_file}}"
+  connection: local
+  docker_service:
+    project_src: "{{docker_compose_dir}}"
+    docker_host: "{{docker_host}}"
+    tls_hostname: "{{docker_tls_hostname}}"
+    tls_ca_cert: "{{docker_ca_cert}}"
+    tls_client_cert: "{{docker_client_cert}}"
+    tls_client_key: "{{docker_client_key}}"
+    files:
+      - "{{docker_compose_file}}"
+    state: absent
+
+- name: "Confirming {{docker_host}} has stopped: {{container_name}}"
+  shell: docker ps -a | grep -v "CONTAINER ID" | grep {{container_name}} | grep -v {{container_name}} | wc -l
+  connection: local
+  register: this_container_stopped
+
+- name: "Confirm step found container={{this_container_stopped.stdout}} on {{docker_host}}"
+  connection: local
+  fail:
+    msg: |
+      "{{docker_host}} has container running={{this_container_stopped.stdout}}"
+      {{ this_container_stopped.stdout }}
+      {{ this_container_stopped.stderr }}
+  when: this_container_stopped.stdout != "0"
+

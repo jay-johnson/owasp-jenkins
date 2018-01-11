@@ -1,0 +1,33 @@
+version: "2"
+
+services:
+
+  # OWASP with Jenkins
+  owasp-jenkins:
+    # derived from:
+    # https://hub.docker.com/r/jenkins/jenkins/
+    # https://github.com/jenkinsci/docker/blob/master/README.md
+    image: jayjohnson/owasp-jenkins:latest
+    container_name: "owasp-jenkins"
+    hostname: owasp-jenkins
+    entrypoint: "/opt/owasp/owasp_jenkins/scripts/start-container.sh"
+    environment:
+      # change these as needed
+      - ADMIN_JENKINS_USER=admin
+      - ADMIN_JENKINS_PASSWORD=testing
+    env_file:
+      - ./docker/env/owasp-dev.env
+    ports:
+      - "8443:8443"
+      # - "8080:8080"
+    volumes:
+      - ./docker/bashrc:/root/.bashrc
+      - ./docker/data/jenkins/secrets/initialAdminPassword:/var/jenkins_home/secrets/initialAdminPassword
+      - ./docker/data/jenkins/lib/jenkins.install.UpgradeWizard.state:/var/jenkins_home/jenkins.install.UpgradeWizard.state
+      - ./docker/data/jenkins/lib/init.groovy.d/basic-security.groovy:/var/jenkins_home/init.groovy.d/basic-security.groovy
+      - ./docker/data/jenkins/ref/plugins.txt:/usr/share/jenkins/ref/plugins.txt
+      - ./docker/data/depchecker:/opt/depchecker
+      - ./docker/data/ansible:/opt/ansible
+      - ./owasp_jenkins:/opt/owasp/owasp_jenkins
+      - ./ansible:/opt/owasp/ansible
+      - ./reports:/opt/reports

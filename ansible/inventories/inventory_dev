@@ -1,0 +1,2 @@
+[stack]
+localhost ansible_python_interpreter="../venv/bin/python"

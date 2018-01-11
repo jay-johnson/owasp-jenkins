@@ -1,0 +1,21 @@
+---
+- name: "Building NIST NVD Downloader repo={{nist_dl_repo}} to dir={{nist_dl_dir}}"
+  connection: local
+  shell: "cd {{nist_dl_dir}} && unset JAVA_TOOL_OPTIONS && mvn {{nist_dl_m2_settings}} {{maven_proxy_params}} -DskipTests clean package"
+
+- name: "Checking NIST NVD Downloader is on the PATH"
+  stat:
+    path: "{{nist_dl}}"
+  register: nist_dl_installed
+
+- name: "Verifying NIST NVD Downloader Exists"
+  fail:
+    msg: "Failed to find NIST NVD Downloader jar file={{nist_dl}} - Please try manually building it with the command: 'cd {{nist_dl_dir}} && unset JAVA_TOOL_OPTIONS && mvn {{nist_dl_m2_settings}} {{maven_proxy_params}} -DskipTests clean package'"
+  when: not nist_dl_installed.stat.exists
+
+- name: "Setting NIST NVD Downloader Permissions"
+  file:
+    path: "{{nist_dl}}"
+    owner: jenkins
+    group: jenkins
+    mode: u=rwx,g=rwx,o=rwx

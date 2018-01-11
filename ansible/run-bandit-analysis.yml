@@ -1,0 +1,47 @@
+---
+- name: "Running Bandit Analysis"
+  gather_facts: no
+  connection: local
+  hosts: localhost
+
+  vars_files:
+    - ./roles/install/vars/jenkins-runtime-latest.yml
+
+  environment:
+    JENKINS_HOME: /var/jenkins_home
+
+  pre_tasks:
+    - set_fact: bandit_scan_dir="/opt/scanthisdir"
+    - set_fact: bandit_report_file="/opt/reports/bandit-report.html"
+    - set_fact: bandit_num_lines="3"
+    - set_fact: bandit_level="-ll"
+    - set_fact: bandit_formatter="html"
+    - set_fact: bandit_args="-r {{bandit_scan_dir}} -n {{bandit_num_lines}} {{bandit_level}} -f {{bandit_formatter}} -o {{bandit_report_file}}"
+
+  tasks:
+
+    - name: "Building Bandit Report Arguments"
+      connection: local
+      set_fact: bandit_args="-r {{bandit_scan_dir}} -n {{bandit_num_lines}} {{bandit_level}} -f {{bandit_formatter}} -o {{bandit_report_file}}"
+    
+    - name: "Running Bandit Analysis args={{bandit_args}}"
+      connection: local
+      shell: ". /opt/owasp/venv/bin/activate && bandit {{bandit_args}} || true"
+      register: bandit_shell_output
+
+    - name: "Checking if the Bandit Report={{owasp_report_file}} exists"
+      connection: local
+      stat:
+        path: "{{owasp_report_file}}"
+      register: checked_report_file
+
+    - name: "Verifying Bandit Report={{bandit_report_file}} was created"
+      fail:
+        msg: "Failed to create Bandit Report file={{bandit_report_file}} with command: . /opt/owasp/venv/bin/activate && bandit {{bandit_args}}"
+      when: not checked_report_file.stat.exists
+    
+    - name: "Displaying Bandit output"
+      connection: local
+      debug:
+        msg: "{{bandit_shell_output.stdout.replace('\t', '').split('\n')}}"
+

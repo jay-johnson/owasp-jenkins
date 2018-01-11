@@ -1,0 +1,37 @@
+---
+- name: "Starting {{docker_host}} compose_dir={{docker_compose_dir}} tls_hostname={{docker_tls_hostname}} ca={{docker_ca_cert}} client_cert={{docker_client_cert}} client_key={{docker_client_key}} compose_file={{docker_compose_file}} containers compose_file={{docker_compose_file}}"
+  connection: local
+  docker_service:
+    project_src: "{{docker_compose_dir}}"
+    docker_host: "{{docker_host}}"
+    tls_hostname: "{{docker_tls_hostname}}"
+    tls_ca_cert: "{{docker_ca_cert}}"
+    tls_client_cert: "{{docker_client_cert}}"
+    tls_client_key: "{{docker_client_key}}"
+    files:
+      - "{{docker_compose_file}}"
+    state: present
+
+- name: "Waiting for {{docker_host}} containers to start with a max timeout of 120 seconds and delay of 20 seconds"
+  connection: local
+  wait_for:
+    delay: 20
+    host: localhost
+    port: 8443
+    timeout: 120  
+    sleep: 1
+
+- name: "Confirming {{docker_host}} --tls --tlsverify --tlscacert={{docker_ca_cert}} --tlscert={{docker_client_cert}} --tlskey={{docker_client_key}} ps -a has container: {{container_name}}"
+  shell: docker --tls --tlsverify --tlscacert={{docker_ca_cert}} --tlscert={{docker_client_cert}} --tlskey={{docker_client_key}} ps -a | grep -v "CONTAINER ID" | grep {{container_name}} | wc -l
+  connection: local
+  register: this_container_stopped
+
+- name: "Confirm step found containers={{this_container_stopped.stdout}} on {{docker_host}}"
+  connection: local
+  fail:
+    msg: |
+      "{{docker_host}} does not have {{container_name}} running={{this_container_stopped.stdout}}"
+      {{ this_container_stopped.stdout }}
+      {{ this_container_stopped.stderr }}
+  when: this_container_stopped.stdout == "0"
+

@@ -1,0 +1,6 @@
+---
+env_name: "local"
+project_name: "owasp-jenkins"
+container_name: "owasp-jenkins"
+venv_dir: "/opt/owasp/venv"
+venv_path: "{{venv_dir}}/bin/python"

@@ -1,0 +1,54 @@
+---
+- name: "Installing Dependency Checker and NIST Downloader"
+  gather_facts: no
+  connection: local
+  hosts: localhost
+
+  vars_files:
+    - ./roles/install/vars/jenkins-runtime-latest.yml
+
+  environment:
+    JENKINS_HOME: /var/jenkins_home
+    M2_HOME: "{{m2_home}}"
+    M2: "{{m2}}"
+    PATH: "{{m2}}:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/bin:/sbin:/bin:${PATH}"
+
+  pre_tasks:
+    - set_fact: clone_depchecker="0"
+    - set_fact: clone_nvd_dl="0"
+
+  tasks:
+
+    - name: Cloning Dependency Checker to dir={{nvd_depcheck_dir}}
+      connection: local
+      include_tasks: ./roles/install/tasks/clone-depchecker.yml
+      when: clone_depchecker == "1"
+
+    - name: Cloning NIST NVD Downloader to dir={{nist_dl_dir}}
+      connection: local
+      include_tasks: ./roles/install/tasks/clone-nvd-dl.yml
+      when: clone_nvd_dl == "1"
+
+    - name: Listing Contents of Dependency Checker dir={{nvd_depcheck_dir}}
+      connection: local
+      shell: "ls -l {{nvd_depcheck_dir}}"
+
+    - name: Listing Contents of NIST NVD Downloader dir={{nist_dl_dir}}
+      connection: local
+      shell: "ls -l {{nist_dl_dir}}"
+
+    - name: Installing Dependency Checker in dir={{nvd_depcheck_dir}}
+      connection: local
+      include_tasks: ./roles/install/tasks/build-depchecker.yml
+
+    - name: Installing NIST NVD Downloader in dir={{nist_dl_dir}}
+      connection: local
+      include_tasks: ./roles/install/tasks/build-nvd-dl.yml
+
+    - name: Path to Dependency Checker={{nvd_depcheck}}
+      connection: local
+      shell: "ls -lrt {{nvd_depcheck}}"
+
+    - name: Path to NIST NVD Downloader={{nist_dl}}
+      connection: local
+      shell: "ls -lrt {{nist_dl}}"

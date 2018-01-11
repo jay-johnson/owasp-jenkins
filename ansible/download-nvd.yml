@@ -1,0 +1,29 @@
+---
+- name: "Downloading the latest NIST National Vulnerability Database files"
+  gather_facts: no
+  connection: local
+  hosts: localhost
+
+  vars_files:
+    - ./roles/install/vars/jenkins-runtime-latest.yml
+
+  environment:
+    JENKINS_HOME: /var/jenkins_home
+    M2_HOME: "{{m2_home}}"
+    M2: "{{m2}}"
+    PATH: "{{m2}}:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/bin:/sbin:/bin:${PATH}"
+
+  pre_tasks:
+    - set_fact: nist_dl_data_dir="/opt/nvd"
+    - set_fact: nist_dl_proxy_params=""
+    - set_fact: nist_dl_args=""
+
+  tasks:
+
+    - name: "Building NIST NVD Downloader Arguments"
+      connection: local
+      set_fact: nist_dl_args="{{nist_dl_proxy_params}} -jar {{nist_dl}} {{nist_dl_data_dir}}"
+
+    - name: "Running NIST NVD Downloader jar={{nist_dl}} args={{nist_dl_args}} saving to dir={{nist_dl_data_dir}}"
+      connection: local
+      shell: "cd {{nist_dl_dir}} && unset JAVA_TOOL_OPTIONS && java {{nist_dl_args}}"

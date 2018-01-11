@@ -1,0 +1,4 @@
+---
+- name: "Updating Installed NIST Downloader from repo={{nist_dl_repo}} in dir={{nist_dl_dir}}"
+  connection: local
+  shell: "pushd {{nist_dl_dir}} && ssh-agent bash -c 'ssh-add {{nist_dl_key}}; git pull' && popd"

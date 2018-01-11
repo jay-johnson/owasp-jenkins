@@ -1,0 +1,4 @@
+---
+- name: "Updating Installed NVD Dependency Checker from repo={{nvd_depcheck_repo}} in dir={{nvd_depcheck_dir}}"
+  connection: local
+  shell: "pushd {{nvd_depcheck_dir}} && ssh-agent bash -c 'ssh-add {{nvd_depcheck_key}}; git pull' && popd"

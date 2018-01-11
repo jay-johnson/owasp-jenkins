@@ -1,0 +1,9 @@
+---
+docker_cert_path: "/path/to/docker/certs"
+docker_host: "tcp://{{docker_fqdn}}:2376"
+docker_compose_dir: "{{playbook_dir}}/../"
+docker_compose_file: "{{docker_compose_dir}}/compose-owasp.yml"
+docker_tls_hostname: "{{docker_fqdn}}"
+docker_ca_cert: "{{docker_cert_path}}/ca.pem"
+docker_client_cert: "{{docker_cert_path}}/client_cert.pem"
+docker_client_key: "{{docker_cert_path}}/client_key.pem"

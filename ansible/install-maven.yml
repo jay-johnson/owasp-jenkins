@@ -1,0 +1,29 @@
+---
+- name: "Install Maven"
+  gather_facts: no
+  connection: local
+  hosts: localhost
+
+  vars_files:
+    - ./roles/install/vars/jenkins-runtime-latest.yml
+
+  environment:
+    JENKINS_HOME: /var/jenkins_home
+    M2_HOME: "{{m2_home}}"
+    M2: "{{m2}}"
+    PATH: "{{m2}}:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/bin:/sbin:/bin:${PATH}"
+
+  pre_tasks:
+    - set_fact: install_maven="1"
+    - set_fact: update_maven="0"
+
+  tasks:
+
+    - name: Checking java
+      connection: local
+      shell: which java && java -version
+
+    - name: Installing Maven
+      connection: local
+      include_tasks: ./roles/install/tasks/install-maven.yml
+      when: install_maven == "1"

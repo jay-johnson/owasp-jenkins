@@ -1,0 +1,4 @@
+---
+- name: "Downloading latest National Vulnerability Database files with jar={{nist_dl}} and storing DB files in dir={{nist_dl_data_dir}}"
+  connection: local
+  shell: "unset JAVA_TOOL_OPTIONS && which java && java -version && java {{java_proxy_params}} -jar {{nist_dl}} {{nist_dl_data_dir}}"

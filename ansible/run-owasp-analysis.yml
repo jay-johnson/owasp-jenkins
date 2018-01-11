@@ -1,0 +1,57 @@
+---
+- name: "Running OWASP Analysis"
+  gather_facts: no
+  connection: local
+  hosts: localhost
+
+  vars_files:
+    - ./roles/install/vars/jenkins-runtime-latest.yml
+
+  environment:
+    JENKINS_HOME: /var/jenkins_home
+    M2_HOME: "{{m2_home}}"
+    M2: "{{m2}}"
+    PATH: "{{m2}}:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/bin:/sbin:/bin:${PATH}"
+
+  pre_tasks:
+    # Rebuild the h2 database once a week or whenever the container is built.
+    # The rebuild takes time, so skipping it means this will scan the code faster
+    #
+    # More details:
+    # https://jeremylong.github.io/DependencyCheck/data/database.html
+    # pass in these args on the ansible-playbook to rebuild the NVD: -e rebuild_nvd="1"
+    - set_fact: rebuild_nvd="0"
+    - set_fact: owasp_build_h2_db_arg="-n"
+    - set_fact: owasp_python_args="--enableExperimental true"
+    - set_fact: owasp_scan_dir="/opt/scanthisdir"
+    - set_fact: owasp_pom="/opt/owasp/ansible/roles/install/files/initial-pom.xml"
+    - set_fact: owasp_project_label="analyze-this-code"
+    - set_fact: owasp_report_file="/opt/reports/owasp-report.html"
+    - set_fact: nist_dl_data_dir="/opt/nvd"
+    - set_fact: owasp_args="{{owasp_proxy_params}} {{owasp_build_h2_db_arg}} {{owasp_python_args}} --out {{owasp_report_file}} --scan {{owasp_scan_dir}} -P {{owasp_pom}} --project {{owasp_project_label}} --data {{nist_dl_data_dir}}"
+
+  tasks:
+
+    - name: "Checking if this is a rebuild_nvd={{rebuild_nvd}}"
+      connection: local
+      set_fact: owasp_build_h2_db_arg=""
+      when: rebuild_nvd == "1"
+    
+    - name: "Building OWASP Arguments"
+      connection: local
+      set_fact: owasp_args="{{owasp_proxy_params}} {{owasp_build_h2_db_arg}} {{owasp_python_args}} --out {{owasp_report_file}} --scan {{owasp_scan_dir}} -P {{owasp_pom}} --project {{owasp_project_label}} --data {{nist_dl_data_dir}}"
+
+    - name: "Running OWASP Report depchecker={{nvd_depcheck}} owasp_args={{owasp_args}}"
+      connection: local
+      shell: "cd {{nvd_depcheck_dir}} && unset JAVA_TOOL_OPTIONS && {{nvd_depcheck}} {{owasp_args}}"
+
+    - name: "Checking if the OWASP Report={{owasp_report_file}} exists"
+      connection: local
+      stat:
+        path: "{{owasp_report_file}}"
+      register: checked_report_file
+
+    - name: "Verifying OWASP Report={{owasp_report_file}} was created"
+      fail:
+        msg: "Failed to create OWASP Report={{owasp_report_file}} with command: cd {{nvd_depcheck_dir}} && unset JAVA_TOOL_OPTIONS && {{nvd_depcheck}} {{owasp_args}}"
+      when: not checked_report_file.stat.exists

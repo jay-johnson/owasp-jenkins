@@ -1,0 +1,7 @@
+---
+base_fqdn: "localdev.com"
+docker_fqdn: "docker.{{base_fqdn}}"
+jenkins_fqdn: "jenkins.{{base_fqdn}}"
+docker_address: "tcp://{docker_fqdn}}:2376"
+jenkins_address: "http://{{jenkins_fqdn}}:8443"
+project_fqdn: "{{jenkins_fqdn}}"

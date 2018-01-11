@@ -1,0 +1,23 @@
+---
+- name: "Starting Maven Installer Tasks"
+  connection: local
+  file:
+    state: directory
+    mode: u=rwX,g=rwX,o=rwX
+    path: "{{tools_base_dir}}"
+
+# Move to the get_url module once the proxy issues are fixed:
+# https://github.com/ansible/ansible/issues/32750
+- name: "Downloading Maven with: wget {{wget_proxy_params}} {{proxy_params}} {{maven_download_url}} -O /opt/shared/apachemaven.tgz"
+  connection: local
+  shell: "wget {{wget_proxy_params}} {{proxy_params}} {{maven_download_url}} -O /opt/shared/apachemaven.tgz"
+
+- name: "Installing Maven to: {{m2_home}}"
+  connection: local
+  shell: "cd {{tools_base_dir}} && tar xvf /opt/shared/apachemaven.tgz \
+            && mv apache-maven-{{maven_build}} {{m2_home}} \
+            && rm -f /opt/shared/apachemaven.tgz"
+
+- name: "Verifying Maven is on the PATH"
+  connection: local
+  shell: "mvn -version"
