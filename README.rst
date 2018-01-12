@@ -10,10 +10,111 @@ Hopefully this will make securing your applications easier.
 .. _NIST NVD: https://nvd.nist.gov/vuln/data-feeds
 .. _OWASP Dependency Checker: https://github.com/jeremylong/DependencyCheck
 
+Quickly Analyze any Repository with OWASP
+-----------------------------------------
+
+Here's how to scan a repository for security issues. This will download the latest https://hub.docker.com/r/jayjohnson/owasp-jenkins container. Please note: because there are so many known vulnerabilities to test, the container inflates to a size of about ``4.4 GB`` on disk.
+
+In this example I am testing the Bandit repository https://github.com/openstack/bandit.git and will create the ``owasp-report-*.html`` file in my current directory before removing the container.
+
+#.  Check there's nothing in the directory:
+
+    ::
+
+        ls | grep html
+
+#.  Pick a Repository to Scan
+
+    ::
+
+        repo=https://github.com/openstack/bandit.git
+
+#.  Run the OWASP Analysis and Generate the HTML Report
+
+    ::
+
+        docker run --name owasp-jenkins -p 8443:8443 -v $(pwd):/opt/reports -it -d jayjohnson/owasp-jenkins:latest && docker exec -it owasp-jenkins git clone $repo /opt/scanrepo && docker exec -it owasp-jenkins ansible-playbook -i inventories/inventory_dev run-owasp-analysis.yml -e owasp_scan_dir="/opt/scanrepo" -e owasp_report_file="/opt/reports/owasp-report-$(date +'%Y-%m-%d-%H-%M-%S').html"
+
+    This will log something like below:
+
+    ::
+
+        d9d9c4e1945b7c0822f29aaae4db48842454ed693e1cc40d041f8362cd49cb12
+        Cloning into '/opt/scanrepo'...
+        remote: Counting objects: 5975, done.
+        remote: Compressing objects: 100% (26/26), done.
+        remote: Total 5975 (delta 5), reused 21 (delta 0), pack-reused 5949
+        Receiving objects: 100% (5975/5975), 1.39 MiB | 0 bytes/s, done.
+        Resolving deltas: 100% (4104/4104), done.
+        [WARNING]: log file at /opt/owasp/ansible/"/tmp/owasp-jenkins.log" is not writeable and we cannot create it, aborting
+
+
+        PLAY [Running OWASP Analysis] **************************************************
+
+        TASK [set_fact] ****************************************************************
+        ok: [localhost]
+
+        TASK [set_fact] ****************************************************************
+        ok: [localhost]
+
+        TASK [set_fact] ****************************************************************
+        ok: [localhost]
+
+        TASK [set_fact] ****************************************************************
+        ok: [localhost]
+
+        TASK [set_fact] ****************************************************************
+        ok: [localhost]
+
+        TASK [set_fact] ****************************************************************
+        ok: [localhost]
+
+        TASK [set_fact] ****************************************************************
+        ok: [localhost]
+
+        TASK [set_fact] ****************************************************************
+        ok: [localhost]
+
+        TASK [set_fact] ****************************************************************
+        ok: [localhost]
+
+        TASK [Checking if this is a rebuild_nvd=0] *************************************
+        skipping: [localhost]
+
+        TASK [Building OWASP Arguments] ************************************************
+        ok: [localhost]
+
+        TASK [Running OWASP Report depchecker=/opt/tools/depcheck/dependency-check-cli/target/release/bin/dependency-check.sh owasp_args= -n --enableExperimental true --out /opt/reports/owasp-report-2018-01-10-20-21-18.html --scan /opt/scanrepo -P /opt/owasp/ansible/roles/install/files/initial-pom.xml --project analyze-this-code --data /opt/nvd] ***
+        changed: [localhost]
+
+        TASK [Checking if the OWASP Report=/opt/reports/owasp-report-2018-01-10-20-21-18.html exists] ***
+        ok: [localhost]
+
+        TASK [Verifying OWASP Report=/opt/reports/owasp-report-2018-01-10-20-21-18.html was created] ***
+        skipping: [localhost]
+
+        PLAY RECAP *********************************************************************
+        localhost                  : ok=12   changed=1    unreachable=0    failed=0
+
+#.  Verify the OWASP HTML Report Exists
+
+    ::
+
+        ls | grep html
+        owasp-report-2018-01-10-20-21-18.html
+
+#.  Cleanup the Docker Container
+
+    ::
+
+        docker stop owasp-jenkins; docker rm owasp-jenkins
+        owasp-jenkins
+        owasp-jenkins
+
 Start the Container
 -------------------
 
-This will download the latest https://hub.docker.com/r/jayjohnson/owasp-jenkins container. Please note, because there are so many vulnerabilities this container will inflate to a size of about ``4.4 GB``.
+If you want to set up the Jenkins container or onboard an application with OWASP testing you can start the container with:
 
 ::
 
