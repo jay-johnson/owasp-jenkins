@@ -387,7 +387,7 @@ The Ansible playbook configures the `Dependency Checker parameters`_ for making 
 Build the OWASP Jenkins Container
 ---------------------------------
 
-This will build a large docker container (derived from ``jenkins/jenkins:latest``) by installing the following security packages listed below. If you want to install these later after the build you can run the Ansible playbooks as needed by commenting out the install lines of the Dockerfile (https://github.com/jay-johnson/owasp-jenkins/blob/master/Dockerfile#L69-L87).
+This will build a large docker container (derived from ``jenkins/jenkins:latest``) by installing the following security packages listed below. If you want to install these later after the build you can run the Ansible playbooks as needed by commenting out the install lines of the Dockerfile (https://github.com/jay-johnson/owasp-jenkins/blob/master/Dockerfile#L84-L102).
 
 Build the container using this script in the base directory of the repository:
 
