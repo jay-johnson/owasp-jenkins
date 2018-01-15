@@ -22,13 +22,13 @@
     # pass in these args on the ansible-playbook to rebuild the NVD: -e rebuild_nvd="1"
     - set_fact: rebuild_nvd="0"
     - set_fact: owasp_build_h2_db_arg="-n"
-    - set_fact: owasp_python_args="--enableExperimental true"
+    - set_fact: owasp_analyzers="--enableExperimental true"
     - set_fact: owasp_scan_dir="/opt/scanthisdir"
     - set_fact: owasp_pom="/opt/owasp/ansible/roles/install/files/initial-pom.xml"
     - set_fact: owasp_project_label="analyze-this-code"
     - set_fact: owasp_report_file="/opt/reports/owasp-report.html"
     - set_fact: nist_dl_data_dir="/opt/nvd"
-    - set_fact: owasp_args="{{owasp_proxy_params}} {{owasp_build_h2_db_arg}} {{owasp_python_args}} --out {{owasp_report_file}} --scan {{owasp_scan_dir}} -P {{owasp_pom}} --project {{owasp_project_label}} --data {{nist_dl_data_dir}}"
+    - set_fact: owasp_args=""
 
   tasks:
 
@@ -39,7 +39,8 @@
     
     - name: "Building OWASP Arguments"
       connection: local
-      set_fact: owasp_args="{{owasp_proxy_params}} {{owasp_build_h2_db_arg}} {{owasp_python_args}} --out {{owasp_report_file}} --scan {{owasp_scan_dir}} -P {{owasp_pom}} --project {{owasp_project_label}} --data {{nist_dl_data_dir}}"
+      set_fact: owasp_args="{{owasp_proxy_params}} {{owasp_build_h2_db_arg}} {{owasp_analyzers}} --out {{owasp_report_file}} --scan {{owasp_scan_dir}} -P {{owasp_pom}} --project {{owasp_project_label}} --data {{nist_dl_data_dir}}"
+      when: owasp_args == ""
 
     - name: "Running OWASP Report depchecker={{nvd_depcheck}} owasp_args={{owasp_args}}"
       connection: local

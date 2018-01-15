@@ -21,9 +21,24 @@ RUN apt-get -y install \
   vim \
   openssl \
   libssl-dev \
+  make \
+  cmake \
+  autoconf \
+  mono-runtime \
+  mono-devel \
   libcurl4-openssl-dev \
   libffi6 \
-  libffi-dev
+  libffi-dev \
+  ruby \
+  curl \
+  php-cli \
+  php-mbstring \
+  unzip 
+
+RUN curl -s https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+  # https://jeremylong.github.io/DependencyCheck/analyzers/bundle-audit.html
+  && gem install bundler-audit \
+  && bundle-audit update
  
 # Install ansible in the system's pips for jenkins
 # and in the virtual env for python3
@@ -85,6 +100,9 @@ RUN /bin/echo "Generating National Vulnerability H2 Database for increasing OWAS
   && . /opt/owasp/venv/bin/activate \
   && cd /opt/owasp/ansible \
   && ansible-playbook -i inventories/inventory_dev run-owasp-analysis.yml -e rebuild_nvd=1 -e owasp_scan_dir="/opt/owasp/venv/bin" -vvvv
+
+RUN /bin/echo "Installing ZAP community scripts in: /opt/zapscripts" \
+  && git clone https://github.com/zaproxy/community-scripts.git /opt/zapscripts
 
 RUN /bin/echo "Installing Certs"
 

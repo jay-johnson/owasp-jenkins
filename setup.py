@@ -53,7 +53,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "owasp_jenkins"))
 setup(
     name="owasp-jenkins",
     cmdclass={"build_py": build_py},
-    version="1.0.0",
+    version="1.0.1",
     description="Automate your OWASP analysis within a " +
     "Jenkins docker " +
     "container that is preconfigured to use Ansible to " +

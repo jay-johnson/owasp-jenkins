@@ -12,8 +12,19 @@
                 <artifactId>dependency-check-maven</artifactId>
                 <version>1.4.5</version>
                 <configuration>
-                    <nuspecAnalyzerEnabled>false</nuspecAnalyzerEnabled>
-                    <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+                    <jarAnalyzer>true</jarAnalyzer>
+                    <pyDistributionAnalyzerEnabled>true</pyDistributionAnalyzerEnabled>
+                    <pyPackageAnalyzerEnabled>true</pyPackageAnalyzerEnabled>
+                    <rubygemsAnalyzerEnabled>true</rubygemsAnalyzerEnabled>
+                    <opensslAnalyzerEnabled>true</opensslAnalyzerEnabled>
+                    <cmakeAnalyzerEnabled>true</cmakeAnalyzerEnabled>
+                    <autoconfAnalyzerEnabled>true</autoconfAnalyzerEnabled>
+                    <composerAnalyzerEnabled>true</composerAnalyzerEnabled>
+                    <nspAnalyzerEnabled>true</nspAnalyzerEnabled>
+                    <swiftPackageManagerAnalyzerEnabled>true</swiftPackageManagerAnalyzerEnabled>
+                    <assemblyAnalyzerEnabled>true</assemblyAnalyzerEnabled>
+                    <cocoapodsAnalyzerEnabled>true</cocoapodsAnalyzerEnabled>
+                    <nuspecAnalyzerEnabled>true</nuspecAnalyzerEnabled>
                     <failBuildOnCVSS>2</failBuildOnCVSS>
                     <mavenSettingsProxyId></mavenSettingsProxyId>
                     <cveValidForHours>0</cveValidForHours>

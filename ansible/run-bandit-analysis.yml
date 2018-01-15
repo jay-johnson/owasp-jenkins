@@ -16,23 +16,24 @@
     - set_fact: bandit_num_lines="3"
     - set_fact: bandit_level="-ll"
     - set_fact: bandit_formatter="html"
-    - set_fact: bandit_args="-r {{bandit_scan_dir}} -n {{bandit_num_lines}} {{bandit_level}} -f {{bandit_formatter}} -o {{bandit_report_file}}"
+    - set_fact: bandit_args=""
 
   tasks:
 
     - name: "Building Bandit Report Arguments"
       connection: local
       set_fact: bandit_args="-r {{bandit_scan_dir}} -n {{bandit_num_lines}} {{bandit_level}} -f {{bandit_formatter}} -o {{bandit_report_file}}"
+      when: bandit_args == ""
     
     - name: "Running Bandit Analysis args={{bandit_args}}"
       connection: local
       shell: ". /opt/owasp/venv/bin/activate && bandit {{bandit_args}} || true"
       register: bandit_shell_output
 
-    - name: "Checking if the Bandit Report={{owasp_report_file}} exists"
+    - name: "Checking if the Bandit Report={{bandit_report_file}} exists"
       connection: local
       stat:
-        path: "{{owasp_report_file}}"
+        path: "{{bandit_report_file}}"
       register: checked_report_file
 
     - name: "Verifying Bandit Report={{bandit_report_file}} was created"
